@@ -1,45 +1,88 @@
-<html>
-  <head>
-    <title>TTT XOnD</title>
-    <style>canvas { width: 100%; height: 100% }</style>
-  </head>
-<body>
-      <script src="lib/three.js"></script>
-	  
-      <script src="lib/coffee-script.js"></script>
-     
-<script type="text/coffeescript">
+<html>  <head>    <title>TTT XOnD</title>    <style>canvas { width: 100%; height: 100% }</style>  </head><body><script src="lib/three.js"></script><script src="lib/OrbitControls.js"></script><script src="lib/coffee-script.js"></script><script type="text/coffeescript">
+ 
+myDistance = 0 
 
-camera = 0
-scene = 0
-renderer = 0
-geometry = 0
-material = 0
-mesh = 0
+myCamera = 0
+myScene = 0
+myRenderer = 0 
+myControls = 0
+basicCubeMaterial = 0
+selectedCubeMaterial = new THREE.MeshLambertMaterial( {transparent: true, opacity: 0.8, ambient: 0x0000DD, color: 0x0000DD, diffuse: 0} ) 
+myCubes = []	
+myStartCubes = []
+createCube = (dim, x,y,z, pcolor= 0xff0000) ->
+	geometry =  new THREE.CubeGeometry( dim, dim, dim ) 
+	cube = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( {transparent: true, opacity: 0.8, ambient: pcolor, color: pcolor, diffuse: 0} ) )
+	cube.position = { x , y , z } 
+	return cube
 	
-init = () ->
+initCubes = (scene) ->
+	color = 0xff0000
+	cubes = []
+	for x in [200, 0, -200]
+		slice = []
+		for y in [200, 0, -200]
+			col = []
+			for z in [200, 0, -200]
+				cube = createCube( 100, x,	y, z, color ) 
+				scene.add cube
+				col.push cube
+				
+			slice.push col
+		color += 0x004400
+		cubes.push slice
+	return cubes
+		
+		
+initScene = () ->
+	scene = new THREE.Scene() 
+	scene.add( new THREE.AmbientLight(0xeeeeee))
+	myStartCubes = initCubes(scene)
+	myCubes = myStartCubes
+	myCubes[2][0][0].material = selectedCubeMaterial
+	scene.fog = new THREE.FogExp2( 0x222222 , 0.001 );
+	return scene
+	
+	
+setupCamera = () ->
 	camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 )
-	camera.position.z = 1000
-	scene = new THREE.Scene()
-	geometry = new THREE.CubeGeometry( 200, 200, 20 )
-	material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } )
-	mesh = new THREE.Mesh( geometry, material )
-	scene.add( mesh ) 
+	camera.position.z = myDistance
+	return camera
+	
+setupConstants = () ->
+	basicCubeMaterial = new THREE.MeshLambertMaterial( 
+		{transparent: true, opacity: 0.8, ambient: 0xff0000, color: 0x00FF00, diffuse: 1} )
+	myDistance = 1000
+	
+setupRenderer = () -> 
 	renderer = new THREE.WebGLRenderer()
 	renderer.setSize( window.innerWidth, window.innerHeight )
-	document.body.appendChild( renderer.domElement )
+	document.body.appendChild( renderer.domElement )	
+	return renderer
+	
+setupControls = (cam) ->
+	controls = new THREE.OrbitControls( cam );
+	controls.addEventListener( 'change', render );
+	return controls
+	
+init = () ->
+	setupConstants()
+	myCamera = setupCamera() 
+	myScene = initScene() 
+	myRenderer = setupRenderer()
+	myControls = setupControls(myCamera)
 		 
 animate = () -> 
-	requestAnimationFrame( animate );
-	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.01;
-	renderer.render( scene, camera );
-		  
+	requestAnimationFrame( animate ) 
+	render()
+	myControls.update() 
+	
+render = () -> 
+	myRenderer.render( myScene, myCamera )
 window.onload = -> 
 	init()
 	animate()
-		
-
+		 
 </script>
 	
 </body>
