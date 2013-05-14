@@ -1,4 +1,4 @@
-<html>  <head>    <title>TTT XOnD</title>    <style>canvas { width: 100%; height: 100% }</style>  </head><body><script src="lib/three.js"></script><script src="lib/OrbitControls.js"></script><script src="lib/coffee-script.js"></script><script type="text/coffeescript">
+<html>  <head>    <title>TTT XOnD</title>    <style>canvas { width: 100%; height: 100% }</style>  </head><body><script src="lib/three.min.js"></script><script src="lib/OrbitControls.js"></script><script src="lib/coffee-script.js"></script><script type="text/coffeescript">
 #blue vs green
 
 #constants and globals
@@ -23,9 +23,7 @@ selectedCubeMaterials = [
 winCubeMaterial = new THREE.MeshLambertMaterial( {transparent: true, opacity: 0.8, ambient: 0xeedd00, color: 0xeedd00, diffuse: 0} ) 
 
 playersTotal = 2
-	
-selectedCubeMaterial = new THREE.MeshLambertMaterial( {transparent: true, opacity: 0.8, ambient: 0x0000DD, color: 0x0000DD, diffuse: 0} )
-
+	 
 #those are the glorious cubes we are seeing on the screen 
 myCubes = []	
 
@@ -34,9 +32,6 @@ mySceneObjects = []
 
 #all cubes in an unselected state. We store them so that we could go back to them fast
 myStartCubes = [] 
-
-#current selection
-myCubeSelection = [1,1,1]
  
 
 #playing on a field of a size 3. In future, this can be changed
@@ -49,7 +44,7 @@ mySparsity = 400
 myTurnCounter = 0
 myGameInProgress = true
  
-dirs4p =[[[0,0,0,0],[0,0,0,0]],[[0,0,0,1],[0,0,0,-1]],[[0,0,0,-1],[0,0,0,1]],[[0,0,1,0],[0,0,-1,0]],[[0,0,1,1],[0,0,-1,-1]],[[0,0,1,-1],[0,0,-1,1]],[[0,0,-1,0],[0,0,1,0]],[[0,0,-1,1],[0,0,1,-1]],[[0,0,-1,-1],[0,0,1,1]],[[0,1,0,0],[0,-1,0,0]],[[0,1,0,1],[0,-1,0,-1]],[[0,1,0,-1],[0,-1,0,1]],[[0,1,1,0],[0,-1,-1,0]],[[0,1,1,1],[0,-1,-1,-1]],[[0,1,1,-1],[0,-1,-1,1]],[[0,1,-1,0],[0,-1,1,0]],[[0,
+dirs4p =[[[0,0,0,1],[0,0,0,-1]],[[0,0,0,-1],[0,0,0,1]],[[0,0,1,0],[0,0,-1,0]],[[0,0,1,1],[0,0,-1,-1]],[[0,0,1,-1],[0,0,-1,1]],[[0,0,-1,0],[0,0,1,0]],[[0,0,-1,1],[0,0,1,-1]],[[0,0,-1,-1],[0,0,1,1]],[[0,1,0,0],[0,-1,0,0]],[[0,1,0,1],[0,-1,0,-1]],[[0,1,0,-1],[0,-1,0,1]],[[0,1,1,0],[0,-1,-1,0]],[[0,1,1,1],[0,-1,-1,-1]],[[0,1,1,-1],[0,-1,-1,1]],[[0,1,-1,0],[0,-1,1,0]],[[0,
 1,-1,1],[0,-1,1,-1]],[[0,1,-1,-1],[0,-1,1,1]],[[0,-1,0,0],[0,1,0,0]],[[0,-1,0,1],[0,1,0,-1]],[[0,-1,0,-1],[0,1,0,1]],[[0,-1,1,0],[0,1,-1,0]],[[0,-1,1,1],[0,1,-1,-1]],[[0,-1,1,-1],[0,1,-1,1]],[[0,-1,-1,0],[0,1,1,0]],[[0,-1,-1,1],[0,1,1,-1]],[[0,-1,-1,-1],[0,1,1,1]],[[1,0,0,0],[-1,0,0,0]],[[1,0,0,1],[-1,0,0,-1]],[[1,0,0,-1],[-1,0,0,1]],[[1,0,1,0],[-1,0,-1,0]],[[1,0,1,1],[-1,0,-1,-1]]
 ,[[1,0,1,-1],[-1,0,-1,1]],[[1,0,-1,0],[-1,0,1,0]],[[1,0,-1,1],[-1,0,1,-1]],[[1,0,-1,-1],[-1,0,1,1]],[[1,1,0,0],[-1,-1,0,0]],[[1,1,0,1],[-1,-1,0,-1]],[[1,1,0,-1],[-1,-1,0,1]],[[1,1,1,0],[-1,-1,-1,0]],[[1,1,1,1],[-1,-1,-1,-1]],[[1,1,1,-1],[-1,-1,-1,1]],[[1,1,-1,0],[-1,-1,1,0]],[[1,1,-1,1],[-1,-1,1,-1]],[[1,1,-1,-1],[-1,-1,1,1]],[[1,-1,0,0],[-1,1,0,0]],[[1,-1,0,1],[-1,1,0,-1]],[[1,-1,
 0,-1],[-1,1,0,1]],[[1,-1,1,0],[-1,1,-1,0]],[[1,-1,1,1],[-1,1,-1,-1]],[[1,-1,1,-1],[-1,1,-1,1]],[[1,-1,-1,0],[-1,1,1,0]],[[1,-1,-1,1],[-1,1,1,-1]],[[1,-1,-1,-1],[-1,1,1,1]],[[-1,0,0,0],[1,0,0,0]],[[-1,0,0,1],[1,0,0,-1]],[[-1,0,0,-1],[1,0,0,1]],[[-1,0,1,0],[1,0,-1,0]],[[-1,0,1,1],[1,0,-1,-1]],[[-1,0,1,-1],[1,0,-1,1]],[[-1,0,-1,0],[1,0,1,0]],[[-1,0,-1,1],[1,0,1,-1]],[[-1,0,-1,-1],[1,0
@@ -79,17 +74,18 @@ checkWins3 = (field, x,y,z,dim ) ->
 			return winpositions
 	return null
 
-checkWins3 = (field, x,y,z,k,dim ) ->
-	playerc = field[x][y][z]
+checkWins4 = (field, k, x, y, z,dim ) ->
+	 
+	playerc = field[k][x][y][z] 
 	if playerc == -1 
 		return null
-	for dirpair in dirs3p
+	for dirpair in dirs4p
 		counter = -1
-		startpos = [x,y,z]
+		startpos = [k,x,y,z] 
 		winpositions = []
 		for dir in dirpair
 			pos = startpos
-			while field[pos[0]][pos[1]][pos[2]] == playerc && counter < 3
+			while field[pos[0]][pos[1]][pos[2]][pos[3]] == playerc && counter < 3
 				winpositions.push pos
 				counter += 1
 				pos = vadd( pos,dir )			
@@ -105,24 +101,24 @@ currentPlayer = () -> myTurnCounter % playersTotal
 myBattlefield = 0
 
 initializeBattlefield = (dim) -> 
-	initializeArrayRecursive( [], dim, dim, -1)
+	initializeArrayRecursive( [], dim, 4, -1) 
 	
-initializeArrayRecursive = (array, dim, counter, value) ->
+window.initializeArrayRecursive = (array, dim, counter, value) ->
 	if (counter == 0) 
 		return value
 	array = new Array(dim)
 	for i in [0.. (dim-1)]
 		array[i] = initializeArrayRecursive( array, dim, counter-1, value)
 		
-isFree = ([x,y,z]) -> myBattlefield[x][y][z] == -1
-occupy = ([x,y,z]) -> myBattlefield[x][y][z] = currentPlayer()
+isFree = ([k,x,y,z]) -> myBattlefield[k][x][y][z] == -1
+occupy = ([k,x,y,z]) -> myBattlefield[k][x][y][z] = currentPlayer()
 
 	
-turn = ([x,y,z]) ->  
-	if (isFree([x,y,z]))  
-		occupy([x,y,z]) 
-		markCube( currentPlayer(), x,y,z)
-		winpath = checkWins3(myBattlefield, x,y,z, myFieldSize) 
+turn = ([k,x,y,z]) ->   
+	if (isFree([k,x,y,z]))  
+		occupy([k,x,y,z]) 
+		markCube( currentPlayer(), k,x,y,z) 
+		winpath = checkWins4(myBattlefield, k, x,y,z, myFieldSize) 
 		if (winpath != null) 
 			myGameInProgress = false
 		return winpath
@@ -157,15 +153,15 @@ smul = (s1,con) ->
 	return s1.map( (x) -> x*con )
 		
  
-markCube = (player_id, x,y,z) ->
-	myCubes[x][y][z].material = selectedCubeMaterials[player_id]
-clearCube = (x,y,z) ->
-	myCubes[x][y][z].material = myStartCubes[x][y][z].material
+markCube = (player_id, k,x,y,z) ->
+	myCubes[k][x][y][z].material = selectedCubeMaterials[player_id]
+clearCube = (k,x,y,z) ->
+	myCubes[k][x][y][z].material = myStartCubes[x][y][z].material
  	 
-initCubes = (scene) ->
+initCubes = (scene, startOffset) ->
 	color = 0xff0000
 	cubes = []
-	ranges = [-mySparsity, 0, mySparsity]
+	ranges = [-mySparsity + startOffset, startOffset, mySparsity+ startOffset]
 	for x in ranges
 		slice = []
 		for y in ranges
@@ -175,20 +171,24 @@ initCubes = (scene) ->
 				scene.add cube
 				col.push cube 
 			slice.push col
-		color += 0x004400
+		color += 0x005500
 		cubes.push slice  
 	return cubes
 		 
 initScene = () ->
 	scene = new THREE.Scene() 
 	scene.add( new THREE.AmbientLight(0xeeeeee))
-	myStartCubes = initCubes(scene)
-	myCubes = initCubes(scene) 
-	scene.fog = new THREE.FogExp2( 0xdddddd , 0.0005 );
-	plane = new THREE.Mesh(
-		new THREE.PlaneGeometry((mySparsity*2 + 100), (mySparsity*2 + 50)), new THREE.MeshLambertMaterial({wireframe: false, transparent: true, opacity: 0.9, ambient: 0x1111ee, color: 0x1111ee, diffuse: 0} ));
-	plane.position.z = -( mySparsity + 200)
-	scene.add(plane)
+
+	scene.fog = new THREE.FogExp2( 0x3333ee, 0.00005 ); 
+	i = 0
+	for soffset in [-1000,0,1000]
+		myStartCubes[i] = initCubes(scene, soffset)
+		i+=1
+	i = 0
+	
+	for soffset in [-1000,0,1000]
+		myCubes[i] = initCubes(scene, soffset)
+		i+=1
 	return scene 
 
 
@@ -211,10 +211,9 @@ setupControls = (cam) ->
 	return controls
 	
 
-initGame = () ->
-	console.debug "init game"
+initGame = () -> 
 	myBattlefield = initializeBattlefield(myFieldSize)  
-	 
+	
  
 	
 render = () -> 
@@ -234,11 +233,9 @@ window.onload = -> start()
 start = () -> 
 	init()
 	initGame() 
-	animate()
- 
+	animate() 
 
-
-gameTurn = (idx) ->
+gameTurn = (idx) -> 
 	if (myGameInProgress)
 		winpath = turn( idx )
 		if winpath!= null
@@ -248,6 +245,9 @@ gameTurn = (idx) ->
 		return winpath
 	else 
 		return null	
+		
+		
+		
 document.ondblclick  = (event) ->	 
 	vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5)
 	projector = new THREE.Projector()
@@ -256,21 +256,24 @@ document.ondblclick  = (event) ->
 	raycaster = new THREE.Raycaster(myCamera.position, vector.sub(myCamera.position).normalize())
 	intersects = raycaster.intersectObjects(mySceneObjects)
 			
-	getCubeIndex = (intersections, arr ) ->   
-		for x in [0.. (arr.length-1) ] 
-			for y in [0.. (arr[x].length-1) ] 
-				for z in [0.. (arr[x][y].length-1) ]  
-					for o in intersections  
-						if  arr[x][y][z]  == o.object
-							return [x,y,z] 
-		return null 
-	alert getCubeIndex( intersects, myCubes )	
-	if (intersects.length > 0)   
-		idx = getCubeIndex( intersects, myCubes )  
-		winpath = gameTurn(idx) 
-		if (winpath is not null)
+	getCubeIndex = (intersections, arr ) ->  
+		for k in [0.. 2]
+			for x in [0.. 2 ] 
+				for y in [0..2 ] 
+					for z in [0..2 ]  
+						for o in intersections   
+							if  arr[k][x][y][z].id  == o.object.id
+								return [k,x,y,z] 
+		return null   	
+		
+		
+	if (intersects.length > 0)  
+		idx = getCubeIndex( intersects, myCubes )   
+		winpath = gameTurn(idx)
+		#console.debug winpath
+		if (winpath != null)
 			for e in winpath  
-					myCubes[e[0]][e[1]][e[2]].material = winCubeMaterial 
+					myCubes[e[0]][e[1]][e[2]][e[3]].material = winCubeMaterial 
 					
 		
 
