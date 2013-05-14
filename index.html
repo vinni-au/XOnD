@@ -125,7 +125,7 @@ turn = ([x,y,z]) ->
 		winpath = checkWins3(myBattlefield, x,y,z, myFieldSize) 
 		if (winpath != null) 
 			myGameInProgress = false
-			return winpath
+		return winpath
 	else
 		return null
 	
@@ -240,12 +240,13 @@ start = () ->
 
 gameTurn = (idx) ->
 	if (myGameInProgress)
-		winpath = turn( idx ) 
+		winpath = turn( idx )
 		if winpath!= null
-			nextTurn()
+			myGameInProgress = false
+			alert "Player #{playerNames[currentPlayer()]} won!" 
+		nextTurn()
 		return winpath
-	else
-		alert "Player #{playerNames[currentPlayer()]} won!" 
+	else 
 		return null	
 document.ondblclick  = (event) ->	 
 	vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5)
@@ -266,10 +267,11 @@ document.ondblclick  = (event) ->
 	alert getCubeIndex( intersects, myCubes )	
 	if (intersects.length > 0)   
 		idx = getCubeIndex( intersects, myCubes )  
-		winpath = (idx) 
+		winpath = gameTurn(idx) 
 		if (winpath is not null)
 			for e in winpath  
 					myCubes[e[0]][e[1]][e[2]].material = winCubeMaterial 
+					
 		
 
 window.onresize = () ->
